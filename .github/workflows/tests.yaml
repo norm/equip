@@ -1,0 +1,27 @@
+name: Run tests
+
+on:
+  push:
+
+jobs:
+  tests:
+    name: Run the tests
+    strategy:
+      matrix:
+        os: 
+          - macos-10.15
+          - macos-11
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install tools
+        run: |
+          brew uninstall --force bats
+          brew install bats-core
+
+      - name: Run tests
+        run: |
+          make test

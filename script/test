@@ -1,0 +1,22 @@
+#!/usr/bin/env bash -euo pipefail
+
+PATH="./bin:$PATH"
+
+blue="\e[34m"
+reset="\e[0m"
+success=0
+declare -a tests
+
+if [ -n "$*" ]; then
+    tests=( "$@" )
+else
+    tests=( $(echo tests/*.bats) )
+fi
+
+for test in "${tests[@]}"; do
+    printf "=== ${blue}%s${reset}\n" $test
+    bats $test
+    let "success = success + $?"
+done
+
+exit $success
