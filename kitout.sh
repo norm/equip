@@ -40,7 +40,7 @@ function usage {
             runs commands listed in the kitfile(s)
 
         Suitfiles are documented on GitHub:
-        https://github.com/norm/kitout/blob/latest/documentation/kitfile.markdown
+        https://github.com/norm/kitout/blob/v${VERSION}/documentation/kitfile.markdown
 EOF
     exit "${1:-0}"
 }
