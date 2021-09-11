@@ -16,7 +16,7 @@ fi
 for test in "${tests[@]}"; do
     printf "=== ${blue}%s${reset}\n" $test
     bats $test
-    let "success = success + $?"
+    let "success = success + $?" || true
 done
 
 exit $success

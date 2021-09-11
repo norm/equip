@@ -1,0 +1,11 @@
+# comments (lines that begin with a hash) and blank lines are ignored
+
+echo Hello world.
+debug Debug output is formatted and coloured.
+
+    # indentation is irrelevant
+    echo Indented commands work.
+
+# debug and echo without arguments is not an error
+debug
+echo
