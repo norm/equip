@@ -98,7 +98,15 @@ function epad {
 }
 
 function process_kitfile {
-    while read command argument; do
+    # cache the kitfile in memory, rather than relying on streaming
+    # from disk; in some cases (brew bundle...) that gets interrupted
+    local -a kitfile
+    while IFS= read -r line; do
+        kitfile+=("$line")
+    done < "$1"
+
+    for line in "${kitfile[@]}"; do
+        read command argument <<<"$line"
         case "$command" in
             \#|'')  : ;;
             echo)       output "$argument" ;;
@@ -107,10 +115,11 @@ function process_kitfile {
 
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
+            brewfile)   brewfile "$argument" ;;
 
             *)      error "Unknown command: '$command'" ;;
         esac
-    done < <(cat "$1")
+    done
 }
 
 function set_repodir {
@@ -191,6 +200,17 @@ function clone_repository {
             output "Not updating; not a git repository."
         fi
         silent_popd
+    fi
+}
+
+function brewfile {
+    local file="${1:-Brewfile}"
+
+    if [ -f "$file" ]; then
+        action "installing from $file"
+        HOMEBREW_NO_COLOR=1 brew bundle --file "$file"
+    else
+        error "brewfile '$file' does not exist"
     fi
 }
 

@@ -1,0 +1,6 @@
+# already installed
+brew 'bats-core'
+
+# to be installed (obviously this could break if gimme
+# is ever actually deliberately installed)
+brew 'gimme'

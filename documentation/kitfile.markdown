@@ -73,3 +73,8 @@ Available commands are:
     Sets the default directory for `clone` commands to _DIRECTORY_;
     if _DIRECTORY_ is not specified, the original value of
     $HOME/Code is restored.
+
+* brewfile [_FILE_]
+
+    Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
+    use "`Brewfile`".
