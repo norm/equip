@@ -95,3 +95,8 @@ Available commands are:
 
     Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
     use "`Brewfile`".
+
+* install _SOURCE_ _DESTINATION_ [_MODE_]
+
+    Copies a file found at _SOURCE_ to _DESTINATION_. If _MODE_ is specified,
+    the file has that mode applied (any valid arguments to `chmod`).

@@ -126,6 +126,7 @@ function process_kitfile {
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
             brewfile)   brewfile "$argument" ;;
+            install)    install_file $argument ;;
 
             *)      error "Unknown command: '$command'" ;;
         esac
@@ -221,6 +222,27 @@ function brewfile {
         HOMEBREW_NO_COLOR=1 brew bundle --file "$file"
     else
         error "brewfile '$file' does not exist"
+    fi
+}
+
+function install_file {
+    local target="$1"
+    local dest="$2"
+
+    action "copying '$target' to '$dest'"
+    if [ ! -f "$target" ]; then
+        error "'$target' does not exist"
+    else
+        if [ -e "$dest" -a ! -f "$dest" ]; then
+            error "'$dest' exists and is not a file"
+        else
+            mkdir -p "$(dirname "$dest")"
+            install "$target" "$dest"
+
+            if [ -n "${3:-}" ]; then
+                chmod "$3" "$dest"
+            fi
+        fi
     fi
 }
 
