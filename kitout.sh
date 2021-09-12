@@ -118,7 +118,7 @@ function process_kitfile {
         )
         read command argument <<<"$line"
         case "$command" in
-            \#|'')  : ;;
+            \#*|'')     : ;;
             echo)       output "$argument" ;;
             debug)      debug_output "$argument" ;;
             section)    section "$argument" ;;
@@ -127,6 +127,8 @@ function process_kitfile {
             clone)      clone_repository $argument ;;
             brewfile)   brewfile "$argument" ;;
             install)    install_file $argument ;;
+
+            cron_entry) add_to_crontab "$argument" ;;
 
             *)      error "Unknown command: '$command'" ;;
         esac
@@ -244,6 +246,38 @@ function install_file {
             fi
         fi
     fi
+}
+
+function add_to_crontab {
+    local line="$*"
+    local tab="$(mktemp '/tmp/kitout.crontab.XXXXX')"
+    local email search
+
+    if ! crontab -l > "$tab" 2>/dev/null; then
+        email=$( git config user.email )
+        [ -z "$email" ] && email='crontab@example.com'
+
+        cat << EOF | sed -e 's/^ *//' > "$tab"
+            MAILTO=$email
+            PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+
+            #mn   hr    dom   mon   dow   cmd
+EOF
+        action 'initialising crontab'
+    fi
+
+    search=$(
+        echo "$line" \
+            | sed -e 's/\*/\\*/g' -e 's/  */ */g'
+    )
+    debug "search='$search'"
+
+    if ! grep -q "$search" "$tab"; then
+        echo "$line" >> "$tab"
+        action "added '$line' to crontab"
+    fi
+
+    crontab "$tab"
 }
 
 main "$@"

@@ -100,3 +100,8 @@ Available commands are:
 
     Copies a file found at _SOURCE_ to _DESTINATION_. If _MODE_ is specified,
     the file has that mode applied (any valid arguments to `chmod`).
+
+* cron_entry _MINUTE_ _HOUR_ _DAYOFMONTH_ _MONTH_ _DAYOFWEEK_ _COMMAND_
+
+    Add an entry to the crontab, creating one if necessary. The arguments are
+    described in more detail in the manual: run `man 5 crontab`.

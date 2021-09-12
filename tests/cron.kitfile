@@ -1,0 +1,2 @@
+            #mn   hr    dom   mon   dow   cmd
+cron_entry  *     *     *     *     *     sleep 1
