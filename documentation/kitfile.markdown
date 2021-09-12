@@ -6,13 +6,13 @@ The kitfile
 A "kitfile" is a configuration file to tell `kitout` what to do. The basic
 syntax is:
 
-```
-    # comments (lines that begin with a hash) and blank lines are ignored
+```bash
+# comments (lines that begin with a hash) and blank lines are ignored
 
-    echo Hello world.
-    debug Debug output is formatted and coloured.
+echo Hello world.
+debug Debug output is formatted and coloured.
 
-        echo Commands can be indented.
+    echo Commands can be indented.
 ```
 
 Any line starting with a hash (`#`) is ignored.
@@ -26,10 +26,10 @@ command.
 
 Available commands are:
 
-    * debug [...]
+* debug [...]
 
-        Outputs the arguments formatted as indented and in cyan text.
+    Outputs the arguments formatted as indented and in cyan text.
 
-    * echo [...]
+* echo [...]
 
-        Outputs the arguments.
+    Outputs the arguments.

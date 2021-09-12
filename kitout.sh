@@ -8,6 +8,9 @@ cyan="\e[36m"
 magenta="\e[35m"
 reset="\e[0m"
 
+errors_occured=0
+
+
 function main {
     while getopts "hv" option; do
         case $option in
@@ -24,6 +27,9 @@ function main {
     for argument in "$@"; do
         process_kitfile "$argument"
     done
+
+    [ $errors_occured -gt 0 ] && exit 1
+    exit 0
 }
 
 function usage {
@@ -56,6 +62,7 @@ function debug_output {
 
 function error {
     printf "${bold}${magenta}*** ${1}${reset}\n" >&2
+    let "errors_occured = errors_occured + 1"
 }
 
 function process_kitfile {
@@ -65,9 +72,7 @@ function process_kitfile {
             echo)   echo "$argument" ;;
             debug)  debug_output "$argument" ;;
 
-            *)  echo "-- $command"
-                echo "   '$argument'"
-                ;;
+            *)      error "Unknown command: '$command'" ;;
         esac
     done < <(cat "$1")
 }
