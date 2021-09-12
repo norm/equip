@@ -16,6 +16,7 @@ magenta="\e[35m"
 reset="\e[0m"
 
 errors_occured=0
+remind_file=$( mktemp '/tmp/kitout.remind.XXXXX' )
 
 
 function main {
@@ -37,6 +38,11 @@ function main {
     for argument in "$@"; do
         process_kitfile "$argument"
     done
+
+    if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
+        section "REMINDERS"
+        cat $remind_file
+    fi
 
     [ $errors_occured -gt 0 ] && exit 1
     exit 0
@@ -127,6 +133,7 @@ function process_kitfile {
             clone)      clone_repository $argument ;;
             brewfile)   brewfile "$argument" ;;
             install)    install_file $argument ;;
+            remind)     remind "$argument" ;;
 
             cron_entry) add_to_crontab "$argument" ;;
 
@@ -278,6 +285,10 @@ EOF
     fi
 
     crontab "$tab"
+}
+
+function remind {
+    echo "$*" >> $remind_file
 }
 
 main "$@"

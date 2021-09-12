@@ -105,3 +105,10 @@ Available commands are:
 
     Add an entry to the crontab, creating one if necessary. The arguments are
     described in more detail in the manual: run `man 5 crontab`.
+
+* remind _TEXT_
+
+    Adds text to be output at the end of the run, rather than showing it
+    immediately. Useful for showing manual actions needed (eg. allowing an
+    application to use Accessibility features) without them being buried
+    among the entire output of a run.
