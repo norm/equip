@@ -1,24 +1,29 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-VERSION=0.2
+VERSION=0.3
 DEBUG=0
 DEFAULT_REPO_DIR="${HOME}/Code"
+
 REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
+HOST="${HOST:=$(hostname -s)}"
 
 # ANSI sequences
 bold="\e[1m"
 cyan="\e[36m"
 yellow="\e[33m"
+green="\e[32m"
 magenta="\e[35m"
 reset="\e[0m"
 
 errors_occured=0
+remind_file=$( mktemp '/tmp/kitout.remind.XXXXX' )
 
 
 function main {
-    while getopts "dhrv" option; do
+    while getopts "dhnrv" option; do
         case $option in
             d)      DEBUG=1 ;;
+            n)      HOST=$OPTARG ;;
             r)      REPO_DIR="$OPTARG" ;;
             v)      show_version ;;
             ?|h)    usage ;;
@@ -34,6 +39,11 @@ function main {
         process_kitfile "$argument"
     done
 
+    if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
+        section "REMINDERS"
+        cat $remind_file
+    fi
+
     [ $errors_occured -gt 0 ] && exit 1
     exit 0
 }
@@ -48,10 +58,11 @@ function usage {
         kitout -v|version
             show the version number
 
-        kitout [-d] [-r DIR] kitfile [kitfile ...]
+        kitout [-d] [-r DIR] [-n NAME] kitfile [kitfile ...]
             runs commands listed in the kitfile(s)
 
             -d  turn on debugging
+            -n  set the value of \$HOST to NAME
             -r  set DIR as directory for repositories to be cloned to;
                 defaults to $HOME/Code
 
@@ -75,6 +86,7 @@ function debug {
 function debug_output { printf "${cyan}    ${*}${reset}\n" >&2; }
 function output       { printf "    ${*}\n" >&2; }
 function action       { printf "${yellow}=== ${1}${reset}\n" >&2; }
+function section      { printf "\n${green}%s${reset}\n" "$(epad "$1")" >&2; }
 function silent_pushd { pushd "$1" >/dev/null; }
 function silent_popd  { popd >/dev/null; }
 function error {
@@ -82,19 +94,54 @@ function error {
     let "errors_occured = errors_occured + 1"
 }
 
+function epad {
+    local length pad_by
+
+    if [ -n "$1" ]; then
+        length=$(( ${#1} + 5 ))
+        pad_by=$(( 79 - $length ))
+        [ $pad_by -lt 3 ] && pad_by=3
+        printf '=== %s %s\n' "$1" $( eval printf '=%.0s' {1..$pad_by} )
+    else
+        eval printf '=%.0s' {1..79}
+    fi
+}
+
 function process_kitfile {
-    while read command argument; do
+    # cache the kitfile in memory, rather than relying on streaming
+    # from disk; in some cases (brew bundle...) that gets interrupted
+    local -a kitfile
+    while IFS= read -r line; do
+        kitfile+=("$line")
+    done < "$1"
+
+    for line in "${kitfile[@]}"; do
+        line=$(
+            echo "$line" \
+                | sed -e "s:\$HOST:$HOST:g" \
+                      -e "s:\$HOME:$HOME:g" \
+                      -e "s:~:$HOME:g"
+        )
+        read command argument <<<"$line"
         case "$command" in
-            \#|'')  : ;;
+            \#*|'')     : ;;
             echo)       output "$argument" ;;
             debug)      debug_output "$argument" ;;
+            section)    section "$argument" ;;
 
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
+            brewfile)   brewfile "$argument" ;;
+            install)    install_file $argument ;;
+            symlink)    symlink $argument ;;
+            start)      start "$argument" ;;
+            remind)     remind "$argument" ;;
+
+            cron_entry) add_to_crontab "$argument" ;;
 
             *)      error "Unknown command: '$command'" ;;
         esac
-    done < <(cat "$1")
+    done
 }
 
 function set_repodir {
@@ -176,6 +223,91 @@ function clone_repository {
         fi
         silent_popd
     fi
+}
+
+function brewfile {
+    local file="${1:-Brewfile}"
+
+    if [ -f "$file" ]; then
+        action "installing from $file"
+        HOMEBREW_NO_COLOR=1 brew bundle --file "$file"
+    else
+        error "brewfile '$file' does not exist"
+    fi
+}
+
+function install_file {
+    local target="$1"
+    local dest="$2"
+
+    action "copying '$target' to '$dest'"
+    if [ ! -f "$target" ]; then
+        error "'$target' does not exist"
+    else
+        if [ -e "$dest" -a ! -f "$dest" ]; then
+            error "'$dest' exists and is not a file"
+        else
+            mkdir -p "$(dirname "$dest")"
+            install "$target" "$dest"
+
+            if [ -n "${3:-}" ]; then
+                chmod "$3" "$dest"
+            fi
+        fi
+    fi
+}
+
+function symlink {
+    local source="$1"
+    local target="$2"
+
+    action "symbolic linking '$target' to '$source'"
+    if [ -e "$target" -a ! -L "$target" ]; then
+        error "cannot create symlink: '$target' already exists"
+    else
+        rm -f "$target"
+        ln -s "$source" "$target"
+    fi
+}
+
+function start {
+    open -g -a "$1"
+}
+
+function add_to_crontab {
+    local line="$*"
+    local tab="$(mktemp '/tmp/kitout.crontab.XXXXX')"
+    local email search
+
+    if ! crontab -l > "$tab" 2>/dev/null; then
+        email=$( git config user.email )
+        [ -z "$email" ] && email='crontab@example.com'
+
+        cat << EOF | sed -e 's/^ *//' > "$tab"
+            MAILTO=$email
+            PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+
+            #mn   hr    dom   mon   dow   cmd
+EOF
+        action 'initialising crontab'
+    fi
+
+    search=$(
+        echo "$line" \
+            | sed -e 's/\*/\\*/g' -e 's/  */ */g'
+    )
+    debug "search='$search'"
+
+    if ! grep -q "$search" "$tab"; then
+        echo "$line" >> "$tab"
+        action "added '$line' to crontab"
+    fi
+
+    crontab "$tab"
+}
+
+function remind {
+    echo "$*" >> $remind_file
 }
 
 main "$@"

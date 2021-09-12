@@ -1,0 +1,3 @@
+brewfile
+brewfile tests/alternate-brewfile
+brewfile i-dont-exist

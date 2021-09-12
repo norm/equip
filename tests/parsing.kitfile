@@ -1,5 +1,7 @@
 # comments (lines that begin with a hash) and blank lines are ignored
 
+remind This text is only shown at the end of a run.
+
 echo Hello world.
 debug Debug output is formatted and coloured.
 
@@ -9,3 +11,6 @@ debug Debug output is formatted and coloured.
 # debug and echo without arguments is not an error
 debug
 echo
+
+section A section header
+section

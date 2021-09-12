@@ -26,12 +26,12 @@
     run ./kitout.sh -v
     echo "$output"
 
-    [ "${lines[0]}" == "kitout version 0.2" ]
+    [ "${lines[0]}" == "kitout version 0.3" ]
     [ $status -eq 0 ]
 
     run ./kitout.sh version
     echo "$output"
 
-    [ "${lines[0]}" == "kitout version 0.2" ]
+    [ "${lines[0]}" == "kitout version 0.3" ]
     [ $status -eq 0 ]
 }
