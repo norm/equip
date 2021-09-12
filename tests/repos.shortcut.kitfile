@@ -1,5 +1,5 @@
 # clone by github: syntax to a defined location
-clone github:norm/kitout /tmp/kitout
+clone github:norm/static /tmp/static
 
 # clone by github: syntax to standard location
-clone github:norm/kitout
+clone github:norm/static

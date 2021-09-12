@@ -9,145 +9,146 @@ reset=$'\e'[0m
 
 
 @test test_http_cloning {
-    [ ! -d /tmp/kitout ]
-    [ ! -d $HOME/Code/norm/kitout ]
+    [ ! -d /tmp/static ]
+    [ ! -d $HOME/Code/norm/static ]
 
     run ./kitout.sh tests/repos.url.kitfile
     echo "$output"
 
-    [ -d /tmp/kitout ]
-    [ -d $HOME/Code/norm/kitout ]
+    [ -d /tmp/static ]
+    [ -d $HOME/Code/norm/static ]
 }
 
 @test test_ssh_cloning {
-    [ ! -d /tmp/kitout ]
-    [ ! -d $HOME/Code/norm/kitout ]
+    [ ! -d /tmp/static ]
+    [ ! -d $HOME/Code/norm/static ]
 
     run ./kitout.sh tests/repos.ssh.kitfile
     echo "$output"
 
-    [ -d /tmp/kitout ]
-    [ -d $HOME/Code/norm/kitout ]
+    [ -d /tmp/static ]
+    [ -d $HOME/Code/norm/static ]
 }
 
 @test test_shortcut_cloning {
-    [ ! -d /tmp/kitout ]
-    [ ! -d $HOME/Code/norm/kitout ]
+    [ ! -d /tmp/static ]
+    [ ! -d $HOME/Code/norm/static ]
 
     run ./kitout.sh tests/repos.shortcut.kitfile
     echo "$output"
 
-    [ -d /tmp/kitout ]
-    [ -d $HOME/Code/norm/kitout ]
+    [ -d /tmp/static ]
+    [ -d $HOME/Code/norm/static ]
 }
 
 @test test_broken_cloning {
-    [ ! -d /tmp/kitout ]
+    [ ! -d /tmp/static ]
 
     run ./kitout.sh tests/repos.broken.kitfile
-    [ "${lines[0]}" == "${bold}${magenta}*** Unknown repository format: kronk:norm/kitout${reset}" ]
+    [ "${lines[0]}" == "${bold}${magenta}*** Unknown repository format: kronk:norm/static${reset}" ]
 
-    [ ! -d /tmp/kitout ]
+    [ ! -d /tmp/static ]
 }
 
 @test test_nonexistent_repo_cloning {
     [ ! -d $HOME/Code/norm/nopeynopey ]
-    [ ! -d /tmp/kitout ]
+    [ ! -d /tmp/static ]
 
     run ./kitout.sh tests/repos.nonexistent.kitfile
 
     [ ! -d $HOME/Code/norm/nopeynopey ]
-    [ -d /tmp/kitout ]
+    [ -d /tmp/static ]
 }
 
 @test test_repodir_cloning {
     [ ! -d /tmp/repos ]
-    [ ! -d $HOME/Code/norm/kitout ]
+    [ ! -d $HOME/Code/norm/static ]
 
     run ./kitout.sh tests/repos.repodir.kitfile
 
-    [ -d /tmp/repos/norm/kitout ]
-    [ -d $HOME/Code/norm/kitout ]
+    [ -d /tmp/repos/norm/static ]
+    [ -d $HOME/Code/norm/static ]
 }
 
 @test test_repo_update_no_changes {
-    run git clone git@github.com:norm/kitout.git /tmp/kitout
+    run git clone git@github.com:norm/static.git /tmp/static
     echo "$output"
     [ $status -eq 0 ]
 
     run ./kitout.sh tests/repos.update.kitfile
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ $status -eq 0 ]
     [ "${lines[0]}" == "## main...origin/main" ]
 }
 
 @test test_repo_update_different_branch {
-    run git clone git@github.com:norm/kitout.git /tmp/kitout
+    run git clone git@github.com:norm/static.git /tmp/static
     echo "$output"
     [ $status -eq 0 ]
 
-    run git -C /tmp/kitout checkout v0.1
+    run git -C /tmp/static checkout patch
     echo "$output"
     [ $status -eq 0 ]
 
     run ./kitout.sh tests/repos.update.kitfile
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ $status -eq 0 ]
-    [ "${lines[0]}" == "## v0.1...origin/v0.1" ]
+    [ "${lines[0]}" == "## patch...origin/patch" ]
 }
 
 @test test_repo_update_clean_pull {
-    run git clone git@github.com:norm/kitout.git /tmp/kitout
+    run git clone git@github.com:norm/static.git /tmp/static
     echo "$output"
     [ $status -eq 0 ]
 
-    run git -C /tmp/kitout reset --hard HEAD~2
+    run git -C /tmp/static reset --hard HEAD~2
     echo "$output"
     [ $status -eq 0 ]
 
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ $status -eq 0 ]
     [ "${lines[0]}" == "## main...origin/main [behind 2]" ]
 
     run ./kitout.sh tests/repos.update.kitfile
+    echo "$output"
     [ "${lines[2]}" == "Fast-forward" ]
 
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ $status -eq 0 ]
     [ "${lines[0]}" == "## main...origin/main" ]
 }
 
 @test test_repo_update_dirty {
-    run git clone git@github.com:norm/kitout.git /tmp/kitout
+    run git clone git@github.com:norm/static.git /tmp/static
     echo "$output"
     [ $status -eq 0 ]
 
-    run git -C /tmp/kitout reset --hard HEAD~2
+    run git -C /tmp/static reset --hard HEAD~2
     echo "$output"
     [ $status -eq 0 ]
 
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ $status -eq 0 ]
     [ "${lines[0]}" == "## main...origin/main [behind 2]" ]
 
-    echo "oh no" > /tmp/kitout/README.markdown
-    git -C /tmp/kitout commit -a -m'oh no'
+    echo "oh no" > /tmp/static/README.md
+    git -C /tmp/static commit -a -m'oh no'
 
     run ./kitout.sh tests/repos.update.kitfile
     echo "$output"
     [ $status -eq 0 ]
     [ "${lines[1]}" == "    Not updating; local commits." ]
 
-    run git -C /tmp/kitout status -bs
+    run git -C /tmp/static status -bs
     echo "$output"
     [ "${lines[0]}" == "## main...origin/main [ahead 1, behind 2]" ]
 }
 
 function teardown {
-    rm -rf /tmp/kitout /tmp/repos $HOME/Code/norm/kitout
+    rm -rf /tmp/static /tmp/repos $HOME/Code/norm/static
 }

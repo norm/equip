@@ -1,7 +1,7 @@
 # clone by github: syntax to new repodir location
 repodir /tmp/repos
-clone github:norm/kitout
+clone github:norm/static
 
 # clone by github: syntax to default repodir location
 repodir
-clone github:norm/kitout
+clone github:norm/static
