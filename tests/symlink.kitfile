@@ -1,0 +1,9 @@
+# make sure file exists
+install tests/symlink.kitfile   /tmp/symlink.kitfile
+install tests/symlink.kitfile   /tmp/exists
+
+# link to it
+symlink /tmp/symlink.kitfile    /tmp/symlink-to-symlink.kitfile
+
+# should not work, cannot replace files
+symlink /tmp/symlink.kitfile    /tmp/exists

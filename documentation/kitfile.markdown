@@ -112,3 +112,7 @@ Available commands are:
     immediately. Useful for showing manual actions needed (eg. allowing an
     application to use Accessibility features) without them being buried
     among the entire output of a run.
+
+* symlink _SOURCE_ _DESTINATION_
+
+    Creates a symbolic link at _DESTINATION_ that points to _SOURCE_.

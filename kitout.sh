@@ -133,6 +133,7 @@ function process_kitfile {
             clone)      clone_repository $argument ;;
             brewfile)   brewfile "$argument" ;;
             install)    install_file $argument ;;
+            symlink)    symlink $argument ;;
             remind)     remind "$argument" ;;
 
             cron_entry) add_to_crontab "$argument" ;;
@@ -252,6 +253,19 @@ function install_file {
                 chmod "$3" "$dest"
             fi
         fi
+    fi
+}
+
+function symlink {
+    local source="$1"
+    local target="$2"
+
+    action "symbolic linking '$target' to '$source'"
+    if [ -e "$target" -a ! -L "$target" ]; then
+        error "cannot create symlink: '$target' already exists"
+    else
+        rm -f "$target"
+        ln -s "$source" "$target"
     fi
 }
 
