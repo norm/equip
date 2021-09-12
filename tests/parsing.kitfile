@@ -9,3 +9,6 @@ debug Debug output is formatted and coloured.
 # debug and echo without arguments is not an error
 debug
 echo
+
+section A section header
+section

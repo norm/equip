@@ -26,13 +26,19 @@ command.
 
 Available commands are:
 
-* debug [...]
+* debug [_TEXT_]
 
-    Outputs the arguments formatted as indented and in cyan text.
+    Outputs _TEXT_ formatted as indented and in cyan. No _TEXT_ gives
+    a blank line.
 
-* echo [...]
+* echo [_TEXT_]
 
-    Outputs the arguments.
+    Outputs _TEXT_ formatted as indented. No _TEXT_ gives a blank line.
+
+* section [_TEXT_]
+
+    Outputs _TEXT_ formatted in green, surrounded by equals signs, to the
+    width of the terminal. No _TEXT_ gives a line of equals signs in green.
 
 * clone _REPOSITORY_ [_DESTINATION_]
 

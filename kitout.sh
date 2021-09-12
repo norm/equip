@@ -9,6 +9,7 @@ REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
 bold="\e[1m"
 cyan="\e[36m"
 yellow="\e[33m"
+green="\e[32m"
 magenta="\e[35m"
 reset="\e[0m"
 
@@ -75,11 +76,25 @@ function debug {
 function debug_output { printf "${cyan}    ${*}${reset}\n" >&2; }
 function output       { printf "    ${*}\n" >&2; }
 function action       { printf "${yellow}=== ${1}${reset}\n" >&2; }
+function section      { printf "\n${green}%s${reset}\n" "$(epad "$1")" >&2; }
 function silent_pushd { pushd "$1" >/dev/null; }
 function silent_popd  { popd >/dev/null; }
 function error {
     printf "${bold}${magenta}*** ${1}${reset}\n" >&2
     let "errors_occured = errors_occured + 1"
+}
+
+function epad {
+    local length pad_by
+
+    if [ -n "$1" ]; then
+        length=$(( ${#1} + 5 ))
+        pad_by=$(( 79 - $length ))
+        [ $pad_by -lt 3 ] && pad_by=3
+        printf '=== %s %s\n' "$1" $( eval printf '=%.0s' {1..$pad_by} )
+    else
+        eval printf '=%.0s' {1..79}
+    fi
 }
 
 function process_kitfile {
@@ -88,6 +103,7 @@ function process_kitfile {
             \#|'')  : ;;
             echo)       output "$argument" ;;
             debug)      debug_output "$argument" ;;
+            section)    section "$argument" ;;
 
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
