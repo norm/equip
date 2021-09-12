@@ -22,6 +22,12 @@ jobs:
           brew uninstall --force bats
           brew install bats-core
 
+      - name: Setup SSH
+        uses: MrSquaare/ssh-setup-action@v1
+        with:
+          host: github.com
+          private-key: ${{ secrets.SSH_KEY }}
+
       - name: Run tests
         run: |
           make test
