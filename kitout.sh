@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-VERSION=0.1
+VERSION=0.2
 
 # ANSI sequences
 bold="\e[1m"
