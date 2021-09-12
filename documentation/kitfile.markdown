@@ -22,6 +22,23 @@ command, everything that follows are the (optional) arguments for that
 command.
 
 
+## Variables/shorthands
+
+Only the following variables/shorthands can be used in kitfiles, any other
+environment variables will **not** be interpolated.
+
+* `$HOST`
+
+    Any occurrence of `$HOST` is replaced with the short hostname of the
+    computer (output of `hostname -s`). This can be overridden with the
+    `-n` flag at runtime.
+
+* `~` / `$HOME`
+
+    `~` and `$HOME` are both expanded to be the home directory of the user
+    (eg `/Users/norm`).
+
+
 ## Commands
 
 Available commands are:

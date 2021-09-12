@@ -3,7 +3,9 @@
 VERSION=0.3
 DEBUG=0
 DEFAULT_REPO_DIR="${HOME}/Code"
+
 REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
+HOST="${HOST:=$(hostname -s)}"
 
 # ANSI sequences
 bold="\e[1m"
@@ -17,9 +19,10 @@ errors_occured=0
 
 
 function main {
-    while getopts "dhrv" option; do
+    while getopts "dhnrv" option; do
         case $option in
             d)      DEBUG=1 ;;
+            n)      HOST=$OPTARG ;;
             r)      REPO_DIR="$OPTARG" ;;
             v)      show_version ;;
             ?|h)    usage ;;
@@ -49,10 +52,11 @@ function usage {
         kitout -v|version
             show the version number
 
-        kitout [-d] [-r DIR] kitfile [kitfile ...]
+        kitout [-d] [-r DIR] [-n NAME] kitfile [kitfile ...]
             runs commands listed in the kitfile(s)
 
             -d  turn on debugging
+            -n  set the value of \$HOST to NAME
             -r  set DIR as directory for repositories to be cloned to;
                 defaults to $HOME/Code
 
@@ -106,6 +110,12 @@ function process_kitfile {
     done < "$1"
 
     for line in "${kitfile[@]}"; do
+        line=$(
+            echo "$line" \
+                | sed -e "s:\$HOST:$HOST:g" \
+                      -e "s:\$HOME:$HOME:g" \
+                      -e "s:~:$HOME:g"
+        )
         read command argument <<<"$line"
         case "$command" in
             \#|'')  : ;;
