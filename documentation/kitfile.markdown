@@ -33,3 +33,37 @@ Available commands are:
 * echo [...]
 
     Outputs the arguments.
+
+* clone _REPOSITORY_ [_DESTINATION_]
+
+    ```bash
+    clone https://github.com/norm/kitout /tmp/kitout
+    clone git@github.com:norm/kitout.git
+    clone github:norm/kitout
+    ```
+
+    Performs a `git clone` action on _REPOSITORY_. This can be in one of
+    three formats: an HTTP location, an ssh location, and a shorthand
+    format of specifying a `git@github.com` location.
+
+    If _DESTINATION_ is not specified, it will be cloned by default to
+    $HOME/Code/_user_/_repo_/, so using the examples above to
+    $HOME/Code/norm/kitout.
+
+    If the repository has already been cloned, kitout will attempt to update
+    it to the latest code, but only if it is on the default branch and there
+    are no local changes.
+
+    The default directory can be changed with the `-r` flag at runtime,
+    or by adding a `repodir` command to a kitfile before any clone commands.
+
+* repodir [_DIRECTORY_]
+
+    ```bash
+    repodir /opt/code
+    repodir
+    ```
+
+    Sets the default directory for `clone` commands to _DIRECTORY_;
+    if _DIRECTORY_ is not specified, the original value of
+    $HOME/Code is restored.

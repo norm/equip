@@ -1,0 +1,5 @@
+# this doesn't exist
+clone git@github.com:norm/nopeynopey.git
+
+# this does, and should still be cloned
+clone git@github.com:norm/kitout.git /tmp/kitout

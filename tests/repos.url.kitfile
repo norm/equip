@@ -1,0 +1,5 @@
+# clone by URL to a defined location
+clone https://github.com/norm/kitout.git /tmp/kitout
+
+# clone by URL to standard location
+clone https://github.com/norm/kitout.git
