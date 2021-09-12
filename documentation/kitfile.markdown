@@ -116,3 +116,8 @@ Available commands are:
 * symlink _SOURCE_ _DESTINATION_
 
     Creates a symbolic link at _DESTINATION_ that points to _SOURCE_.
+
+* start _APPLICATION_
+
+    Starts _APPLICATION_ in the background to stop it from stealing focus
+    while `kitout` is still running.

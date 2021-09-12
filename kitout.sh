@@ -134,6 +134,7 @@ function process_kitfile {
             brewfile)   brewfile "$argument" ;;
             install)    install_file $argument ;;
             symlink)    symlink $argument ;;
+            start)      start "$argument" ;;
             remind)     remind "$argument" ;;
 
             cron_entry) add_to_crontab "$argument" ;;
@@ -267,6 +268,10 @@ function symlink {
         rm -f "$target"
         ln -s "$source" "$target"
     fi
+}
+
+function start {
+    open -g -a "$1"
 }
 
 function add_to_crontab {
