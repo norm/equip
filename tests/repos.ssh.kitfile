@@ -1,0 +1,5 @@
+# clone by SSH to a defined location
+clone git@github.com:norm/kitout.git /tmp/kitout
+
+# clone by SSH command to standard location
+clone git@github.com:norm/kitout.git
