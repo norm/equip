@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-VERSION=0.2
+VERSION=0.3
 DEBUG=0
 DEFAULT_REPO_DIR="${HOME}/Code"
 REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
