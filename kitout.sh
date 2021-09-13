@@ -309,7 +309,8 @@ function symlink {
 }
 
 function start {
-    open -g -a "$1"
+    action "starting '$*'"
+    open -g -a "$*"
 }
 
 function brew_update {
