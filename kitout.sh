@@ -350,6 +350,7 @@ EOF
 }
 
 function remind {
+    output "$*"
     echo "$*" >> $remind_file
 }
 

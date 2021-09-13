@@ -11,16 +11,17 @@ reset=$'\e'[0m
     echo "$output"
     echo "${#lines[@]} lines."
 
-    [ ${#lines[@]} = 9 ] # this format skips blank lines
-    [ "${lines[0]}" == "    Hello world." ]
-    [ "${lines[1]}" == "${cyan}    Debug output is formatted and coloured.${reset}" ]
-    [ "${lines[2]}" == "    Indented commands work." ]
-    [ "${lines[3]}" == "${cyan}    ${reset}" ]
-    [ "${lines[4]}" == "    " ]
-    [ "${lines[5]}" == "${green}=== A section header ==========================================================${reset}" ]
-    [ "${lines[6]}" == "${green}===============================================================================${reset}" ]
-    [ "${lines[7]}" == "${green}=== REMINDERS =================================================================${reset}" ]
-    [ "${lines[8]}" == "This text is only shown at the end of a run." ]
+    [ ${#lines[@]} = 10 ] # this format skips blank lines
+    [ "${lines[0]}" == "    This text is reshown at the end of a run." ]
+    [ "${lines[1]}" == "    Hello world." ]
+    [ "${lines[2]}" == "${cyan}    Debug output is formatted and coloured.${reset}" ]
+    [ "${lines[3]}" == "    Indented commands work." ]
+    [ "${lines[4]}" == "${cyan}    ${reset}" ]
+    [ "${lines[5]}" == "    " ]
+    [ "${lines[6]}" == "${green}=== A section header ==========================================================${reset}" ]
+    [ "${lines[7]}" == "${green}===============================================================================${reset}" ]
+    [ "${lines[8]}" == "${green}=== REMINDERS =================================================================${reset}" ]
+    [ "${lines[9]}" == "This text is reshown at the end of a run." ]
 }
 
 @test unknown_command {
