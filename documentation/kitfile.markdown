@@ -97,6 +97,11 @@ Available commands are:
     if _DIRECTORY_ is not specified, the original value of
     $HOME/Code is restored.
 
+* brew_update
+
+    Runs `brew update`. Helpful to put at the start of a `kitfile` so that
+    homebrew update notices are not mixed in with any other output.
+
 * brewfile [_FILE_]
 
     Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
