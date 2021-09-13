@@ -1,2 +1,2 @@
-install tests/install.kitfile   ~/install-test/file     0715
+install install.kitfile         ~/install-test/file     0715
 install i-dont-exist            ~/install-test/nope     0742
