@@ -57,6 +57,12 @@ Available commands are:
     Outputs _TEXT_ formatted in green, surrounded by equals signs, to the
     width of the terminal. No _TEXT_ gives a line of equals signs in green.
 
+* alert [_TEXT_]
+
+    Outputs _TEXT_ formatted in magenta, and waits for the user to
+    press [Return]. Useful when something needs to be approved
+    rather than done automatically.
+
 * clone _REPOSITORY_ [_DESTINATION_]
 
     ```bash
