@@ -95,6 +95,13 @@ function action       { printf "${yellow}=== ${1}${reset}\n" >&2; }
 function section      { printf "\n${green}%s${reset}\n" "$(epad "$1")" >&2; }
 function silent_pushd { pushd "$1" >/dev/null; }
 function silent_popd  { popd >/dev/null; }
+
+function alert {
+    printf "${magenta}!!! ${1}${reset}\n" >&2
+    output Press [Return] to continue.
+    read
+}
+
 function error {
     printf "${bold}${magenta}*** ${1}${reset}\n" >&2
     let "errors_occured = errors_occured + 1"
@@ -137,6 +144,7 @@ function process_kitfile {
             echo)       output "$argument" ;;
             debug)      debug_output "$argument" ;;
             section)    section "$argument" ;;
+            alert)      alert "$argument" ;;
 
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
