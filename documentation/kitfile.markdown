@@ -107,6 +107,11 @@ Available commands are:
     Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
     use "`Brewfile`".
 
+* run _SCRIPT_
+
+    Executes the named _SCRIPT_ (this runs with `source`, so `kitout`
+    internal functions are available in the script).
+
 * install _SOURCE_ _DESTINATION_ [_MODE_]
 
     Copies a file found at _SOURCE_ to _DESTINATION_. If _MODE_ is specified,

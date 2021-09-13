@@ -154,6 +154,7 @@ function process_kitfile {
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
             assign_all) assign_all $argument ;;
+            run)        run_script $argument ;;
             brew_update)    brew_update ;;
 
             cron_entry) add_to_crontab "$argument" ;;
@@ -312,6 +313,11 @@ function symlink {
 function start {
     action "starting '$*'"
     open -g -a "$*"
+}
+
+function run_script {
+    action "execute script '$1'"
+    source "$1"
 }
 
 function assign_all {
