@@ -36,7 +36,13 @@ function main {
     [ "${1}" = 'version' ] && show_version
 
     for argument in "$@"; do
-        process_kitfile "$argument"
+        if [ -f "$argument" ]; then
+            process_kitfile "$argument"
+        elif [ -d "$argument" ]; then
+            process_directory "$argument"
+        else
+            error "Kitfile does not exist: $argument"
+        fi
     done
 
     if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
@@ -108,14 +114,17 @@ function epad {
 }
 
 function process_kitfile {
+    local kitfile="$(get_full_path "$1")"
+    silent_pushd "$(dirname "$kitfile")"
+
     # cache the kitfile in memory, rather than relying on streaming
     # from disk; in some cases (brew bundle...) that gets interrupted
-    local -a kitfile
+    local -a lines
     while IFS= read -r line; do
-        kitfile+=("$line")
-    done < "$1"
+        lines+=("$line")
+    done < "$kitfile"
 
-    for line in "${kitfile[@]}"; do
+    for line in "${lines[@]}"; do
         line=$(
             echo "$line" \
                 | sed -e "s:\$HOST:$HOST:g" \
@@ -139,9 +148,29 @@ function process_kitfile {
 
             cron_entry) add_to_crontab "$argument" ;;
 
-            *)      error "Unknown command: '$command'" ;;
+            *)  if [ -d $command ]; then
+                    process_directory $command
+                elif [ -f $command ]; then
+                    process_kitfile $command
+                else
+                    error "Unknown command: '$command'"
+                fi
+                ;;
         esac
     done
+
+    silent_popd
+}
+
+function get_full_path {
+    local path="$1"
+    silent_pushd "$(dirname $path)"
+    echo "$(pwd)"/"$(basename "$path")"
+    silent_popd
+}
+
+function process_directory {
+    process_kitfile "$1/kitfile"
 }
 
 function set_repodir {

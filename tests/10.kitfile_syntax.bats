@@ -30,3 +30,20 @@ reset=$'\e'[0m
     [ "${lines[0]}" == "${bold}${magenta}*** Unknown command: 'kronk'${reset}" ]
     [ $status -eq 1 ]
 }
+
+@test follows_directories {
+    run ./kitout.sh tests/directories.kitfile
+    echo "$output"
+    echo "${#lines[@]} lines."
+
+    [ ${#lines[@]} = 9 ]
+    [ "${lines[0]}" == "    Testing directories." ]
+    [ "${lines[1]}" == "    " ]
+    [ "${lines[2]}" == "    Here." ]
+    [ "${lines[3]}" == "    Let us begin." ]
+    [ "${lines[4]}" == "    The very start." ]
+    [ "${lines[5]}" == "    The start." ]
+    [ "${lines[6]}" == "    The end." ]
+    [ "${lines[7]}" == "    " ]
+    [ "${lines[8]}" == "    The very end." ]
+}

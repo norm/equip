@@ -1,0 +1,3 @@
+# Not named kitfile or with a .kitfile extension, but still treated as such.
+
+echo Here.

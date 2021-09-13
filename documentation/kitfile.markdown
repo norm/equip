@@ -121,3 +121,30 @@ Available commands are:
 
     Starts _APPLICATION_ in the background to stop it from stealing focus
     while `kitout` is still running.
+
+
+## Breaking files into smaller components
+
+`kitout` supports using multiple files by interpreting the following
+as commands to continue executing another `kitfile`:
+
+* _FILE_
+
+    Any text file is assumed to be another `kitfile` and the commands within
+    will be executed. The file does not have to be named `kitfile` or have a
+    `.kitfile` extension, but it is recommended.
+
+* _DIRECTORY_
+
+    A directory is treated as though the line was `_DIRECTORY_/kitfile`
+    (the directory is assumed to contain a `kitfile`).
+
+Files referred to in `kitfiles` are relative to the kitfile itself. In
+a directory containing a `kitfile` and a `Brewfile`, the `kitfile` need
+only have the command:
+
+```bash
+brewfile
+```
+
+to install software, as `Brewfile` is the default name.

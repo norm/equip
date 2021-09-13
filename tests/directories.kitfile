@@ -1,0 +1,10 @@
+echo Testing directories.
+echo
+
+misnamed-still-works
+
+end/start.kitfile
+start/
+end/
+
+the-end.kitfile
