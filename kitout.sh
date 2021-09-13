@@ -153,6 +153,7 @@ function process_kitfile {
             symlink)    symlink $argument ;;
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
+            assign_all) assign_all $argument ;;
             brew_update)    brew_update ;;
 
             cron_entry) add_to_crontab "$argument" ;;
@@ -311,6 +312,19 @@ function symlink {
 function start {
     action "starting '$*'"
     open -g -a "$*"
+}
+
+function assign_all {
+    action "assigning '$*' to all Desktops"
+    osascript << EOF >/dev/null
+        tell application "System Events"
+            tell UI element "$*" of list 1 of process "Dock"
+                perform action "AXShowMenu"
+                click menu item "Options" of menu 1
+                click menu item "All Desktops" of menu 1 of menu item "Options" of menu 1
+            end tell
+        end tell
+EOF
 }
 
 function brew_update {
