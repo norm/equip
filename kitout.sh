@@ -339,14 +339,13 @@ EOF
         echo "$line" \
             | sed -e 's/\*/\\*/g' -e 's/  */ */g'
     )
-    debug "search='$search'"
+    debug "crontab search='$search'"
 
     if ! grep -q "$search" "$tab"; then
         echo "$line" >> "$tab"
         action "added '$line' to crontab"
+        crontab "$tab"
     fi
-
-    crontab "$tab"
 }
 
 function remind {
