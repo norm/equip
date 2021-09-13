@@ -1,6 +1,6 @@
 # comments (lines that begin with a hash) and blank lines are ignored
 
-remind This text is only shown at the end of a run.
+remind This text is reshown at the end of a run.
 
 echo Hello world.
 debug Debug output is formatted and coloured.

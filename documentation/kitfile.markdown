@@ -119,8 +119,8 @@ Available commands are:
 
 * remind _TEXT_
 
-    Adds text to be output at the end of the run, rather than showing it
-    immediately. Useful for showing manual actions needed (eg. allowing an
+    Output text now, and then again at the end of the run.
+    Useful for showing manual actions needed (eg. allowing an
     application to use Accessibility features) without them being buried
     among the entire output of a run.
 
