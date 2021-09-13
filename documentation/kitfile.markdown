@@ -128,6 +128,10 @@ Available commands are:
 
     Creates a symbolic link at _DESTINATION_ that points to _SOURCE_.
 
+* assign\_all _APPLICATION_
+
+    Sets _APPLICATION_ to be available on all desktops.
+
 * start _APPLICATION_
 
     Starts _APPLICATION_ in the background to stop it from stealing focus
