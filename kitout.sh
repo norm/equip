@@ -153,6 +153,7 @@ function process_kitfile {
             symlink)    symlink $argument ;;
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
+            brew_update)    brew_update ;;
 
             cron_entry) add_to_crontab "$argument" ;;
 
@@ -309,6 +310,11 @@ function symlink {
 
 function start {
     open -g -a "$1"
+}
+
+function brew_update {
+    action 'updating homebrew'
+    brew update
 }
 
 function add_to_crontab {
