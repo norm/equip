@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-VERSION=0.3
+VERSION=0.4
 DEBUG=0
 DEFAULT_REPO_DIR="${HOME}/Code"
 
@@ -36,7 +36,13 @@ function main {
     [ "${1}" = 'version' ] && show_version
 
     for argument in "$@"; do
-        process_kitfile "$argument"
+        if [ -f "$argument" ]; then
+            process_kitfile "$argument"
+        elif [ -d "$argument" ]; then
+            process_directory "$argument"
+        else
+            error "Kitfile does not exist: $argument"
+        fi
     done
 
     if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
@@ -89,6 +95,13 @@ function action       { printf "${yellow}=== ${1}${reset}\n" >&2; }
 function section      { printf "\n${green}%s${reset}\n" "$(epad "$1")" >&2; }
 function silent_pushd { pushd "$1" >/dev/null; }
 function silent_popd  { popd >/dev/null; }
+
+function alert {
+    printf "${magenta}!!! ${1}${reset}\n" >&2
+    output Press [Return] to continue.
+    read
+}
+
 function error {
     printf "${bold}${magenta}*** ${1}${reset}\n" >&2
     let "errors_occured = errors_occured + 1"
@@ -108,14 +121,17 @@ function epad {
 }
 
 function process_kitfile {
+    local kitfile="$(get_full_path "$1")"
+    silent_pushd "$(dirname "$kitfile")"
+
     # cache the kitfile in memory, rather than relying on streaming
     # from disk; in some cases (brew bundle...) that gets interrupted
-    local -a kitfile
+    local -a lines
     while IFS= read -r line; do
-        kitfile+=("$line")
-    done < "$1"
+        lines+=("$line")
+    done < "$kitfile"
 
-    for line in "${kitfile[@]}"; do
+    for line in "${lines[@]}"; do
         line=$(
             echo "$line" \
                 | sed -e "s:\$HOST:$HOST:g" \
@@ -128,6 +144,7 @@ function process_kitfile {
             echo)       output "$argument" ;;
             debug)      debug_output "$argument" ;;
             section)    section "$argument" ;;
+            alert)      alert "$argument" ;;
 
             repodir)    set_repodir "$argument" ;;
             clone)      clone_repository $argument ;;
@@ -136,12 +153,35 @@ function process_kitfile {
             symlink)    symlink $argument ;;
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
+            assign_all) assign_all $argument ;;
+            run)        run_script $argument ;;
+            brew_update)    brew_update ;;
 
             cron_entry) add_to_crontab "$argument" ;;
 
-            *)      error "Unknown command: '$command'" ;;
+            *)  if [ -d $command ]; then
+                    process_directory $command
+                elif [ -f $command ]; then
+                    process_kitfile $command
+                else
+                    error "Unknown command: '$command'"
+                fi
+                ;;
         esac
     done
+
+    silent_popd
+}
+
+function get_full_path {
+    local path="$1"
+    silent_pushd "$(dirname $path)"
+    echo "$(pwd)"/"$(basename "$path")"
+    silent_popd
+}
+
+function process_directory {
+    process_kitfile "$1/kitfile"
 }
 
 function set_repodir {
@@ -271,7 +311,31 @@ function symlink {
 }
 
 function start {
-    open -g -a "$1"
+    action "starting '$*'"
+    open -g -a "$*"
+}
+
+function run_script {
+    action "execute script '$1'"
+    source "$1"
+}
+
+function assign_all {
+    action "assigning '$*' to all Desktops"
+    osascript << EOF >/dev/null
+        tell application "System Events"
+            tell UI element "$*" of list 1 of process "Dock"
+                perform action "AXShowMenu"
+                click menu item "Options" of menu 1
+                click menu item "All Desktops" of menu 1 of menu item "Options" of menu 1
+            end tell
+        end tell
+EOF
+}
+
+function brew_update {
+    action 'updating homebrew'
+    brew update
 }
 
 function add_to_crontab {
@@ -296,17 +360,17 @@ EOF
         echo "$line" \
             | sed -e 's/\*/\\*/g' -e 's/  */ */g'
     )
-    debug "search='$search'"
+    debug "crontab search='$search'"
 
     if ! grep -q "$search" "$tab"; then
         echo "$line" >> "$tab"
         action "added '$line' to crontab"
+        crontab "$tab"
     fi
-
-    crontab "$tab"
 }
 
 function remind {
+    output "$*"
     echo "$*" >> $remind_file
 }
 

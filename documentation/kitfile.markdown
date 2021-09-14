@@ -57,6 +57,12 @@ Available commands are:
     Outputs _TEXT_ formatted in green, surrounded by equals signs, to the
     width of the terminal. No _TEXT_ gives a line of equals signs in green.
 
+* alert [_TEXT_]
+
+    Outputs _TEXT_ formatted in magenta, and waits for the user to
+    press [Return]. Useful when something needs to be approved
+    rather than done automatically.
+
 * clone _REPOSITORY_ [_DESTINATION_]
 
     ```bash
@@ -91,10 +97,20 @@ Available commands are:
     if _DIRECTORY_ is not specified, the original value of
     $HOME/Code is restored.
 
+* brew_update
+
+    Runs `brew update`. Helpful to put at the start of a `kitfile` so that
+    homebrew update notices are not mixed in with any other output.
+
 * brewfile [_FILE_]
 
     Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
     use "`Brewfile`".
+
+* run _SCRIPT_
+
+    Executes the named _SCRIPT_ (this runs with `source`, so `kitout`
+    internal functions are available in the script).
 
 * install _SOURCE_ _DESTINATION_ [_MODE_]
 
@@ -108,8 +124,8 @@ Available commands are:
 
 * remind _TEXT_
 
-    Adds text to be output at the end of the run, rather than showing it
-    immediately. Useful for showing manual actions needed (eg. allowing an
+    Output text now, and then again at the end of the run.
+    Useful for showing manual actions needed (eg. allowing an
     application to use Accessibility features) without them being buried
     among the entire output of a run.
 
@@ -117,7 +133,38 @@ Available commands are:
 
     Creates a symbolic link at _DESTINATION_ that points to _SOURCE_.
 
+* assign\_all _APPLICATION_
+
+    Sets _APPLICATION_ to be available on all desktops.
+
 * start _APPLICATION_
 
     Starts _APPLICATION_ in the background to stop it from stealing focus
     while `kitout` is still running.
+
+
+## Breaking files into smaller components
+
+`kitout` supports using multiple files by interpreting the following
+as commands to continue executing another `kitfile`:
+
+* _FILE_
+
+    Any text file is assumed to be another `kitfile` and the commands within
+    will be executed. The file does not have to be named `kitfile` or have a
+    `.kitfile` extension, but it is recommended.
+
+* _DIRECTORY_
+
+    A directory is treated as though the line was `_DIRECTORY_/kitfile`
+    (the directory is assumed to contain a `kitfile`).
+
+Files referred to in `kitfiles` are relative to the kitfile itself. In
+a directory containing a `kitfile` and a `Brewfile`, the `kitfile` need
+only have the command:
+
+```bash
+brewfile
+```
+
+to install software, as `Brewfile` is the default name.

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+bold=$'\e'[1m
+magenta=$'\e'[35m
+reset=$'\e'[0m
+
 @test kitout_is_executable {
     run ./kitout.sh
     echo "$output"
@@ -26,12 +30,20 @@
     run ./kitout.sh -v
     echo "$output"
 
-    [ "${lines[0]}" == "kitout version 0.3" ]
+    [ "${lines[0]}" == "kitout version 0.4" ]
     [ $status -eq 0 ]
 
     run ./kitout.sh version
     echo "$output"
 
-    [ "${lines[0]}" == "kitout version 0.3" ]
+    [ "${lines[0]}" == "kitout version 0.4" ]
     [ $status -eq 0 ]
+}
+
+@test kitout_with_nonexistent_kitfile {
+    run ./kitout.sh i-dont-exist
+    echo "$output"
+
+    [ "${lines[0]}" == "${bold}${magenta}*** Kitfile does not exist: i-dont-exist${reset}" ]
+    [ $status -eq 1 ]
 }
