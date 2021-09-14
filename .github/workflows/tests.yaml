@@ -34,6 +34,12 @@ jobs:
           host: github.com
           private-key: ${{ secrets.SSH_KEY }}
 
+      - name: Add tmate API key
+        env:
+          TMATE_API_KEY: ${{ secrets.TMATE_API_KEY }}
+        run: |
+          echo "set tmate-api-key '$TMATE_API_KEY'" > ~/.tmate.conf
+
       - name: Setup tmate debugging session
         uses: mxschmitt/action-tmate@v3
         with:
