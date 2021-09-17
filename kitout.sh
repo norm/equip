@@ -6,6 +6,7 @@ DEFAULT_REPO_DIR="${HOME}/Code"
 
 REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
 HOST="${HOST:=$(hostname -s)}"
+BREW_PREFIX=$(brew --prefix)
 
 # ANSI sequences
 bold="\e[1m"
@@ -136,6 +137,7 @@ function process_kitfile {
             echo "$line" \
                 | sed -e "s:\$HOST:$HOST:g" \
                       -e "s:\$HOME:$HOME:g" \
+                      -e "s:\$BREW:$BREW_PREFIX:g" \
                       -e "s:~:$HOME:g"
         )
         read command argument <<<"$line"

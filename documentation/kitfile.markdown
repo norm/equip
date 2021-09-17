@@ -27,6 +27,11 @@ command.
 Only the following variables/shorthands can be used in kitfiles, any other
 environment variables will **not** be interpolated.
 
+* `$BREW`
+
+    Any occurence of `$BREW` is replaced with the prefix of installed
+    version of Homebrew.
+
 * `$HOST`
 
     Any occurrence of `$HOST` is replaced with the short hostname of the
