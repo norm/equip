@@ -156,6 +156,7 @@ function process_kitfile {
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
             assign_all) assign_all $argument ;;
+            loginitem)  loginitem $argument ;;
             run)        run_script $argument ;;
             brew_update)    brew_update ;;
 
@@ -331,6 +332,19 @@ function assign_all {
                 click menu item "Options" of menu 1
                 click menu item "All Desktops" of menu 1 of menu item "Options" of menu 1
             end tell
+        end tell
+EOF
+}
+
+function loginitem {
+    action "setting '$*' to start at login"
+    osascript << EOF >/dev/null
+        tell application "System Events"
+            make login item at end with properties { \
+                path: "/Applications/${*}.app", \
+                name: "$*", \
+                hidden: false \
+            }
         end tell
 EOF
 }

@@ -147,6 +147,10 @@ Available commands are:
     Starts _APPLICATION_ in the background to stop it from stealing focus
     while `kitout` is still running.
 
+* loginitem _APPLICATION_
+
+    Sets _APPLICATION_ to run automatically every time you login.
+
 
 ## Breaking files into smaller components
 
