@@ -134,6 +134,38 @@ Available commands are:
     application to use Accessibility features) without them being buried
     among the entire output of a run.
 
+* shortcuts _FILE_ _APPLICATION_
+
+    A specialised reminder type for setting keyboard shortcuts for
+    _APPLICATION_. Since it is now almost impossible to set them
+    automatically, `kitout` will instead check if the custom shortcuts are
+    set, and if not open the Keyboards preference pane and prompt you to set
+    the shortcut, waiting until you hit \[Return\].
+
+    The shortcut _FILE_ should be the same name as the application's 
+    preferences domain (eg for Things 3, use `com.culturedcode.ThingsMac`
+    — this can be found by looking in `~/Library/Preferences`).
+    The contents of the file uses the form:
+
+        # remember to enable the Developer menu
+        cmd-opt-j   Disable JavaScript
+        cmd+opt+c   Disable Styles
+
+    Blank lines and comments are ignored. The keyboard modifiers are:
+
+    * `cmd` or `command`
+    * `alt`, `opt` or `option`
+    * `ctrl` or `control`
+    * `shift`
+
+    The key is expected to be a letter, a number, or:
+
+    * `up`, `down`, `left`, `right`
+    * `return`
+    * `tab`
+    * `F1` through `F12`
+
+
 * dock\_add _POSITION_ [_TYPE_] _APPLICATION_
 
     Adds _APPLICATION_ to the Dock at _POSITION_. For applications that are

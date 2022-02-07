@@ -134,7 +134,7 @@ function process_kitfile {
     local -a lines
     while IFS= read -r line; do
         lines+=("$line")
-    done < "$kitfile"
+    done < <( cat "$kitfile"; echo '' )
 
     for line in "${lines[@]}"; do
         line=$(
@@ -164,6 +164,7 @@ function process_kitfile {
             run)        run_script $argument ;;
             brew_update)    brew_update ;;
 
+            shortcuts)      shortcuts $argument ;;
             dock_add)       dock_add $argument ;;
             dock_remove)    dock_remove $argument ;;
             cron_entry) add_to_crontab "$argument" ;;
@@ -353,6 +354,70 @@ function loginitem {
             }
         end tell
 EOF
+}
+
+function shortcuts {
+    local defaults_file="$1"
+    shift
+    local app="$*"
+    local header=0 code menu shortcut menu_item
+
+    local -a lines
+    while IFS= read -r line; do
+        lines+=("$line")
+    done < <( cat "$defaults_file"; echo '' )
+
+    for line in "${lines[@]}"; do
+        read shortcut menu_item <<<"$line"
+        [ -z "$shortcut" ] && continue
+        [[ "$shortcut" == \#* ]] && continue
+
+        # convert human readable shortcuts
+        menu=$(
+            echo "$menu_item" \
+                | sed -e 's/…/..U2026./' \
+                | sed -e 's/\(.* .*\)/"\1"/'
+        )
+        code=$(
+            echo "$shortcut" \
+                | perl -pe '
+                    s{\bF1\b}{\\\\\\\\Uf704};
+                    s{\bF2\b}{\\\\\\\\Uf705};
+                    s{\bF3\b}{\\\\\\\\Uf706};
+                    s{\bF4\b}{\\\\\\\\Uf707};
+                    s{\bF5\b}{\\\\\\\\Uf708};
+                    s{\bF6\b}{\\\\\\\\Uf709};
+                    s{\bF7\b}{\\\\\\\\Uf70a};
+                    s{\bF8\b}{\\\\\\\\Uf70b};
+                    s{\bF9\b}{\\\\\\\\Uf70c};
+                    s{\bF10\b}{\\\\\\\\Uf70d};
+                    s{\bF11\b}{\\\\\\\\Uf70e};
+                    s{\bF12\b}{\\\\\\\\Uf70f};
+                    s{(cmd|command)[+-]}{@};
+                    s{(alt|opt(ion)?)[+-]}{~};
+                    s{shift[+-]}{\$};
+                    s{(control|ctrl)[+-]}{^};
+                    s{left}{\\\\\\\\U2190};
+                    s{up}{\\\\\\\\U2191};
+                    s{right}{\\\\\\\\U2192};
+                    s{down}{\\\\\\\\U2193};
+                    s{return}{\\\\\\\\U21a9};
+                    s{tab}{\\\\\\\\U21e5};
+                    '
+        )
+
+        if ! defaults read "$defaults_file" NSUserKeyEquivalents \
+              | grep "$menu = \"$code\"" >/dev/null
+        then
+            if [ $header = 0 ]; then
+                action "Keyboard shortcuts for '$app':"
+                header=1
+                open /System/Library/PreferencePanes/Keyboard.prefPane \
+                    || true
+            fi
+            alert "Set '$menu_item' shortcut to '$shortcut'"
+        fi
+    done
 }
 
 function brew_update {
