@@ -280,7 +280,7 @@ function brewfile {
 
     if [ -f "$file" ]; then
         action "installing from $file"
-        HOMEBREW_NO_COLOR=1 brew bundle --file "$file"
+        HOMEBREW_NO_COLOR=1 brew bundle --no-lock --file "$file"
     else
         error "brewfile '$file' does not exist"
     fi
