@@ -48,27 +48,27 @@ environment variables will **not** be interpolated.
 
 Available commands are:
 
-* debug [_TEXT_]
+* debug \[_TEXT_\]
 
     Outputs _TEXT_ formatted as indented and in cyan. No _TEXT_ gives
     a blank line.
 
-* echo [_TEXT_]
+* echo \[_TEXT_\]
 
     Outputs _TEXT_ formatted as indented. No _TEXT_ gives a blank line.
 
-* section [_TEXT_]
+* section \[_TEXT_\]
 
     Outputs _TEXT_ formatted in green, surrounded by equals signs, to the
     width of the terminal. No _TEXT_ gives a line of equals signs in green.
 
-* alert [_TEXT_]
+* alert \[_TEXT_\]
 
     Outputs _TEXT_ formatted in magenta, and waits for the user to
-    press [Return]. Useful when something needs to be approved
+    press \[Return\]. Useful when something needs to be approved
     rather than done automatically.
 
-* clone _REPOSITORY_ [_DESTINATION_]
+* clone _REPOSITORY_ \[_DESTINATION_\]
 
     ```bash
     clone https://github.com/norm/kitout /tmp/kitout
@@ -91,7 +91,7 @@ Available commands are:
     The default directory can be changed with the `-r` flag at runtime,
     or by adding a `repodir` command to a kitfile before any clone commands.
 
-* repodir [_DIRECTORY_]
+* repodir \[_DIRECTORY_\]
 
     ```bash
     repodir /opt/code
@@ -107,7 +107,7 @@ Available commands are:
     Runs `brew update`. Helpful to put at the start of a `kitfile` so that
     homebrew update notices are not mixed in with any other output.
 
-* brewfile [_FILE_]
+* brewfile \[_FILE_\]
 
     Runs `brew bundle` with _FILE_. If _FILE_ is not specified, it will
     use "`Brewfile`".
@@ -117,7 +117,7 @@ Available commands are:
     Executes the named _SCRIPT_ (this runs with `source`, so `kitout`
     internal functions are available in the script).
 
-* install _SOURCE_ _DESTINATION_ [_MODE_]
+* install _SOURCE_ _DESTINATION_ \[_MODE_\]
 
     Copies a file found at _SOURCE_ to _DESTINATION_. If _MODE_ is specified,
     the file has that mode applied (any valid arguments to `chmod`).
