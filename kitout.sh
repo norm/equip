@@ -1,11 +1,12 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-VERSION=0.4
+VERSION=0.5
 DEBUG=0
 DEFAULT_REPO_DIR="${HOME}/Code"
 
 REPO_DIR="${REPO_DIR:=$DEFAULT_REPO_DIR}"
 HOST="${HOST:=$(hostname -s)}"
+BREW_PREFIX=$(brew --prefix)
 
 # ANSI sequences
 bold="\e[1m"
@@ -17,6 +18,7 @@ reset="\e[0m"
 
 errors_occured=0
 remind_file=$( mktemp '/tmp/kitout.remind.XXXXX' )
+dock_restart=0
 
 
 function main {
@@ -44,6 +46,9 @@ function main {
             error "Kitfile does not exist: $argument"
         fi
     done
+
+    [ $dock_restart = 1 ] \
+        && killall Dock
 
     if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
         section "REMINDERS"
@@ -129,13 +134,14 @@ function process_kitfile {
     local -a lines
     while IFS= read -r line; do
         lines+=("$line")
-    done < "$kitfile"
+    done < <( cat "$kitfile"; echo '' )
 
     for line in "${lines[@]}"; do
         line=$(
             echo "$line" \
                 | sed -e "s:\$HOST:$HOST:g" \
                       -e "s:\$HOME:$HOME:g" \
+                      -e "s:\$BREW:$BREW_PREFIX:g" \
                       -e "s:~:$HOME:g"
         )
         read command argument <<<"$line"
@@ -154,9 +160,13 @@ function process_kitfile {
             start)      start "$argument" ;;
             remind)     remind "$argument" ;;
             assign_all) assign_all $argument ;;
+            loginitem)  loginitem $argument ;;
             run)        run_script $argument ;;
             brew_update)    brew_update ;;
 
+            shortcuts)      shortcuts $argument ;;
+            dock_add)       dock_add $argument ;;
+            dock_remove)    dock_remove $argument ;;
             cron_entry) add_to_crontab "$argument" ;;
 
             *)  if [ -d $command ]; then
@@ -270,7 +280,7 @@ function brewfile {
 
     if [ -f "$file" ]; then
         action "installing from $file"
-        HOMEBREW_NO_COLOR=1 brew bundle --file "$file"
+        HOMEBREW_NO_COLOR=1 brew bundle --no-lock --file "$file"
     else
         error "brewfile '$file' does not exist"
     fi
@@ -333,9 +343,121 @@ function assign_all {
 EOF
 }
 
+function loginitem {
+    action "setting '$*' to start at login"
+    osascript << EOF >/dev/null
+        tell application "System Events"
+            make login item at end with properties { \
+                path: "/Applications/${*}.app", \
+                name: "$*", \
+                hidden: false \
+            }
+        end tell
+EOF
+}
+
+function shortcuts {
+    local defaults_file="$1"
+    shift
+    local app="$*"
+    local header=0 code menu shortcut menu_item
+
+    local -a lines
+    while IFS= read -r line; do
+        lines+=("$line")
+    done < <( cat "$defaults_file"; echo '' )
+
+    for line in "${lines[@]}"; do
+        read shortcut menu_item <<<"$line"
+        [ -z "$shortcut" ] && continue
+        [[ "$shortcut" == \#* ]] && continue
+
+        # convert human readable shortcuts
+        menu=$(
+            echo "$menu_item" \
+                | sed -e 's/…/..U2026./' \
+                | sed -e 's/\(.* .*\)/"\1"/'
+        )
+        code=$(
+            echo "$shortcut" \
+                | perl -pe '
+                    s{\bF1\b}{\\\\\\\\Uf704};
+                    s{\bF2\b}{\\\\\\\\Uf705};
+                    s{\bF3\b}{\\\\\\\\Uf706};
+                    s{\bF4\b}{\\\\\\\\Uf707};
+                    s{\bF5\b}{\\\\\\\\Uf708};
+                    s{\bF6\b}{\\\\\\\\Uf709};
+                    s{\bF7\b}{\\\\\\\\Uf70a};
+                    s{\bF8\b}{\\\\\\\\Uf70b};
+                    s{\bF9\b}{\\\\\\\\Uf70c};
+                    s{\bF10\b}{\\\\\\\\Uf70d};
+                    s{\bF11\b}{\\\\\\\\Uf70e};
+                    s{\bF12\b}{\\\\\\\\Uf70f};
+                    s{(cmd|command)[+-]}{@};
+                    s{(alt|opt(ion)?)[+-]}{~};
+                    s{shift[+-]}{\$};
+                    s{(control|ctrl)[+-]}{^};
+                    s{left}{\\\\\\\\U2190};
+                    s{up}{\\\\\\\\U2191};
+                    s{right}{\\\\\\\\U2192};
+                    s{down}{\\\\\\\\U2193};
+                    s{return}{\\\\\\\\U21a9};
+                    s{tab}{\\\\\\\\U21e5};
+                    '
+        )
+
+        if ! defaults read "$defaults_file" NSUserKeyEquivalents \
+              | grep "$menu = \"$code\"" >/dev/null
+        then
+            if [ $header = 0 ]; then
+                action "Keyboard shortcuts for '$app':"
+                header=1
+                open /System/Library/PreferencePanes/Keyboard.prefPane \
+                    || true
+            fi
+            alert "Set '$menu_item' shortcut to '$shortcut'"
+        fi
+    done
+}
+
 function brew_update {
     action 'updating homebrew'
     brew update
+}
+
+function dock_add {
+    local pos="$1"
+    shift
+
+    local alt="$1"
+    local location=''
+    if [ "$alt" = 'system' ]; then
+        location='/System'
+        shift
+    elif [ "$alt" = 'core' ]; then
+        location='/System/Library/CoreServices'
+        shift
+    fi
+
+    action "adding '$*' to the Dock in position '$pos'"
+    dock_restart=1
+    dockutil \
+        --no-restart \
+        --replacing "$*" \
+        --add "$location/Applications/$*.app" \
+        --position $pos \
+            | egrep -v 'already exists in|was not added' \
+                || true
+}
+
+function dock_remove {
+    action "removing '$*' from the dock"
+    dock_restart=1
+    dockutil \
+        --no-restart \
+        --remove "$*" \
+            | grep -v 'was not found' \
+                || true
 }
 
 function add_to_crontab {
