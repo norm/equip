@@ -18,6 +18,7 @@ reset="\e[0m"
 
 errors_occured=0
 remind_file=$( mktemp '/tmp/kitout.remind.XXXXX' )
+dock_restart=0
 
 
 function main {
@@ -45,6 +46,9 @@ function main {
             error "Kitfile does not exist: $argument"
         fi
     done
+
+    [ $dock_restart = 1 ] \
+        && killall Dock
 
     if [ "$(stat -f'%z' $remind_file)" -gt 0 ]; then
         section "REMINDERS"
@@ -160,6 +164,8 @@ function process_kitfile {
             run)        run_script $argument ;;
             brew_update)    brew_update ;;
 
+            dock_add)       dock_add $argument ;;
+            dock_remove)    dock_remove $argument ;;
             cron_entry) add_to_crontab "$argument" ;;
 
             *)  if [ -d $command ]; then
@@ -352,6 +358,41 @@ EOF
 function brew_update {
     action 'updating homebrew'
     brew update
+}
+
+function dock_add {
+    local pos="$1"
+    shift
+
+    local alt="$1"
+    local location=''
+    if [ "$alt" = 'system' ]; then
+        location='/System'
+        shift
+    elif [ "$alt" = 'core' ]; then
+        location='/System/Library/CoreServices'
+        shift
+    fi
+
+    action "adding '$*' to the Dock in position '$pos'"
+    dock_restart=1
+    dockutil \
+        --no-restart \
+        --replacing "$*" \
+        --add "$location/Applications/$*.app" \
+        --position $pos \
+            | egrep -v 'already exists in|was not added' \
+                || true
+}
+
+function dock_remove {
+    action "removing '$*' from the dock"
+    dock_restart=1
+    dockutil \
+        --no-restart \
+        --remove "$*" \
+            | grep -v 'was not found' \
+                || true
 }
 
 function add_to_crontab {

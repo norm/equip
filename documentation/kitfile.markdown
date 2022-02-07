@@ -134,6 +134,18 @@ Available commands are:
     application to use Accessibility features) without them being buried
     among the entire output of a run.
 
+* dock\_add _POSITION_ [_TYPE_] _APPLICATION_
+
+    Adds _APPLICATION_ to the Dock at _POSITION_. For applications that are
+    not installed in `/Applications`, refine the location of it using _TYPE_:
+
+    * **system** -- expect to find the app in `/System/Applications`
+    * **core** -- expect to find the app in `/System/Library/CoreServices/Applications`
+
+* dock\_remove _APPLICATION_
+
+    Removes _APPLICATION_ from the Dock.
+
 * symlink _SOURCE_ _DESTINATION_
 
     Creates a symbolic link at _DESTINATION_ that points to _SOURCE_.
